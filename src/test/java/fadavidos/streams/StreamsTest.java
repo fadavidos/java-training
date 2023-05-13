@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -175,8 +174,4 @@ public class StreamsTest {
         assertEquals(88, summary.getMax());
         assertEquals(29, summary.getAverage());
     }
-
-
-
-
 }

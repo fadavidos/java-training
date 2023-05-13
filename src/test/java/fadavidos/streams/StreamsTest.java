@@ -7,10 +7,9 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.OptionalDouble;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -103,6 +102,58 @@ public class StreamsTest {
         assertEquals(true, bands13.contains("Mumford and Sons"));
         assertEquals(false, bands13.contains("Elvis"));
     }
+
+    // Stream rows from text file and save to List
+    @Test
+    void testStreamRowsToList() throws IOException {
+        List<String> bands = Files.lines(Paths.get("src/test/resources/bands.txt"))
+                .filter(x -> x.contains("jit"))
+                .toList();
+        assertEquals(1, bands.size());
+    }
+
+    // Stream rows from CSV file and count
+    @Test
+    void testStreamRowsFromCSVFilesCount() throws IOException{
+        Stream<String> rows = Files.lines(Paths.get("src/test/resources/data.txt"));
+        int rowCount = (int) rows
+                .map(x -> x.split(","))
+                .filter(x -> x.length == 3)
+                .count();
+        assertEquals(5, rowCount);
+    }
+
+    // Stream rows from CSV file, parse data from rows
+    @Test
+    void testStreamRowsFromCSVParseData() throws IOException {
+
+        Stream<String> rows = Files.lines(Paths.get("src/test/resources/data.txt"));
+        List<String> result = rows.map(x -> x.split(","))
+                .filter(x -> x.length == 3)
+                .map(x -> String.format("%s %s %s", x[0], x[1], x[2]))
+                .toList();
+        rows.close();
+        assertEquals("A 12 3.7", result.stream().findFirst().orElse("NA"));
+    }
+
+
+    // Stream rows from CSV file store fields in HashMap
+    @Test
+    void testStreamRowCSVFileToHashMap() throws IOException {
+        Stream<String> rows = Files.lines(Paths.get("src/test/resources/data.txt"));
+        Map<String, Integer> map = new HashMap<>();
+        map = rows
+                .map(x -> x.split(","))
+                .filter(x -> x.length == 3)
+                .filter(x -> Integer.parseInt(x[1]) > 15)
+                .collect(Collectors.toMap(
+                        key -> key[0],
+                        value -> Integer.parseInt(value[1])
+                        ));
+        assertEquals(17, map.get("B"));
+        assertEquals(18, map.get("F"));
+    }
+
 
 
 

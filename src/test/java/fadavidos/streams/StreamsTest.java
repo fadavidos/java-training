@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -152,6 +153,27 @@ public class StreamsTest {
                         ));
         assertEquals(17, map.get("B"));
         assertEquals(18, map.get("F"));
+    }
+
+    // Reduction - sum
+    @Test
+    void testStreamReduction() {
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        double total = Stream.of(7.3, 1.5, 4.8)
+                .reduce(0.0, (a, b) -> a + b);
+        assertEquals(13.6, Double.parseDouble(decimalFormat.format(total)));
+    }
+
+    // Reduction - summary statistics
+    @Test
+    void testStreamReductionStatistics() {
+        IntSummaryStatistics summary = IntStream.of(7, 2, 19, 88, 73, 4, 10)
+                .summaryStatistics();
+        assertEquals(7, summary.getCount());
+        assertEquals(203, summary.getSum());
+        assertEquals(2, summary.getMin());
+        assertEquals(88, summary.getMax());
+        assertEquals(29, summary.getAverage());
     }
 
 

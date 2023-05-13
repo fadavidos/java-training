@@ -3,8 +3,13 @@ package fadavidos.streams;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -66,5 +71,39 @@ public class StreamsTest {
         assertEquals(true, filteredList.contains("Sarika"));
         assertEquals(false, filteredList.contains("Kushal"));
     }
+
+    // Average of squares of an int array
+    @Test
+    void testAverage() {
+        OptionalDouble average = Arrays.stream(new int[] {2, 4, 6, 8 ,10})
+                .map( x -> x * x)
+                .average();
+        assertEquals(44D, average.orElse(0D));
+    }
+
+    //Stream form List and filter
+    @Test
+    void testStreamFromList(){
+        List<String> people = Arrays.asList("Al", "Ankit", "Brent", "Sarika", "amanda", "Hans", "Shivika", "Sarah");
+        List<String> filteredPeople = people.stream()
+                .map(String::toLowerCase)
+                .filter(x -> x.startsWith("a"))
+                .toList();
+        assertEquals(true, filteredPeople.contains("al"));
+        assertEquals(false, filteredPeople.contains("brent"));
+    }
+
+    @Test
+    void testStreamRowsFromTextFile() throws IOException {
+        Stream<String> bands = Files.lines(Paths.get("src/test/resources/bands.txt"));
+        List<String> bands13 = bands
+                .sorted()
+                .filter(x -> x.length() > 13)
+                .toList();
+        assertEquals(true, bands13.contains("Mumford and Sons"));
+        assertEquals(false, bands13.contains("Elvis"));
+    }
+
+
 
 }

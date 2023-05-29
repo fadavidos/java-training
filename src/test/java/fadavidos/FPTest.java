@@ -6,7 +6,7 @@ import java.util.function.BiFunction;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class FunctionalProgrammingTest {
+public class FPTest {
 
     static class MyMath{
         public static Integer triple(Integer x){

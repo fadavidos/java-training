@@ -3,11 +3,13 @@ package fadavidos;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -180,9 +182,10 @@ public class StreamsTest {
     // Reduction - sum
     @Test
     void testStreamReduction() {
+        BinaryOperator<Double> getSum = Double::sum;
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         double total = Stream.of(7.3, 1.5, 4.8)
-                .reduce(0.0, (a, b) -> a + b);
+                .reduce(0.0, getSum);
         assertEquals(13.6, Double.parseDouble(decimalFormat.format(total)));
     }
 
@@ -196,5 +199,35 @@ public class StreamsTest {
         assertEquals(2, summary.getMin());
         assertEquals(88, summary.getMax());
         assertEquals(29, summary.getAverage());
+    }
+
+    @Test
+    void testCollectorsGroupingBy(){
+        String[] names = {"one", "two", "three", "four", "five", "six"};
+        ArrayList<String> namesList = new ArrayList<>(Arrays.asList(names));
+
+        Map<Integer, List<String>> mapNamesByLength = namesList
+                .stream()
+                .collect(Collectors.groupingBy(String::length));
+
+        assertNull(mapNamesByLength.get(1));
+        assertNull(mapNamesByLength.get(2));
+        assertEquals(3, mapNamesByLength.get(3).size());
+        assertEquals(2, mapNamesByLength.get(4).size());
+        assertEquals(1, mapNamesByLength.get(5).size());
+    }
+
+    @Test
+    void testCollectorsPartitioningBy(){
+        Integer[] numbers = {1, 2, 3, 4, 5, 6, 7};
+        ArrayList<Integer> numbersList = new ArrayList<>(Arrays.asList(numbers));
+
+        Predicate<Integer> numberIsEven = (num) -> num % 2 == 0;
+
+        Map<Boolean, List<Integer>> result = numbersList
+                .stream()
+                .collect(Collectors.partitioningBy(numberIsEven));
+        assertEquals(3 , result.get(true).size());
+        assertEquals(4 , result.get(false).size());
     }
 }

@@ -1,6 +1,5 @@
-package fadavidos.streams;
+package fadavidos;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -9,11 +8,28 @@ import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class StreamsTest {
+
+    @Test
+    void mapFunction(){
+        Integer[] intArray = {1, 2, 3, 4, 5};
+        ArrayList<Integer> listOfIntegers = new ArrayList<>(Arrays.asList(intArray));
+        Function<Integer, Integer> timesTwo = (number) -> number * 2;
+        List<Integer> doubled = listOfIntegers
+                .stream()
+                .map(timesTwo)
+                .toList();
+        assertEquals(10, doubled.get(4));
+        assertEquals(6, doubled.get(2));
+    }
 
     // Integer Stream
     @Test
@@ -62,13 +78,14 @@ public class StreamsTest {
     //Stream from Array, sort and filter
     @Test
     void testStreamFromArray(){
+        Predicate<String> startWithS = (name) -> name.startsWith("S");
         String[] names = {"Al", "Ankit", "Kushal", "Brent", "Sarika", "amanda", "Hans", "Shivika", "Sarah"};
         List<String> filteredList = Arrays.stream(names)
-                .filter(name -> name.startsWith("S"))
+                .filter(startWithS)
                 .sorted()
                 .toList();
-        assertEquals(true, filteredList.contains("Sarika"));
-        assertEquals(false, filteredList.contains("Kushal"));
+        assertTrue(filteredList.contains("Sarika"));
+        assertFalse(filteredList.contains("Kushal"));
     }
 
     // Average of squares of an int array
@@ -83,21 +100,23 @@ public class StreamsTest {
     //Stream form List and filter
     @Test
     void testStreamFromList(){
+        Predicate<String> startWithA = (str) -> str.startsWith("a");
         List<String> people = Arrays.asList("Al", "Ankit", "Brent", "Sarika", "amanda", "Hans", "Shivika", "Sarah");
         List<String> filteredPeople = people.stream()
                 .map(String::toLowerCase)
-                .filter(x -> x.startsWith("a"))
+                .filter(startWithA)
                 .toList();
-        assertEquals(true, filteredPeople.contains("al"));
-        assertEquals(false, filteredPeople.contains("brent"));
+        assertTrue(filteredPeople.contains("al"));
+        assertFalse(filteredPeople.contains("brent"));
     }
 
     @Test
     void testStreamRowsFromTextFile() throws IOException {
+        Predicate<String> isLongerThan13 = (str) -> str.length() > 13;
         Stream<String> bands = Files.lines(Paths.get("src/test/resources/bands.txt"));
         List<String> bands13 = bands
                 .sorted()
-                .filter(x -> x.length() > 13)
+                .filter(isLongerThan13)
                 .toList();
         assertEquals(true, bands13.contains("Mumford and Sons"));
         assertEquals(false, bands13.contains("Elvis"));
@@ -106,8 +125,9 @@ public class StreamsTest {
     // Stream rows from text file and save to List
     @Test
     void testStreamRowsToList() throws IOException {
+        Predicate<String> containsJIT = (str) -> str.contains("jit");
         List<String> bands = Files.lines(Paths.get("src/test/resources/bands.txt"))
-                .filter(x -> x.contains("jit"))
+                .filter(containsJIT)
                 .toList();
         assertEquals(1, bands.size());
     }
@@ -115,10 +135,11 @@ public class StreamsTest {
     // Stream rows from CSV file and count
     @Test
     void testStreamRowsFromCSVFilesCount() throws IOException{
+        Predicate<String[]> isGatherThan13 = (x) -> x.length == 3;
         Stream<String> rows = Files.lines(Paths.get("src/test/resources/data.txt"));
         int rowCount = (int) rows
                 .map(x -> x.split(","))
-                .filter(x -> x.length == 3)
+                .filter(isGatherThan13)
                 .count();
         assertEquals(5, rowCount);
     }
@@ -126,10 +147,10 @@ public class StreamsTest {
     // Stream rows from CSV file, parse data from rows
     @Test
     void testStreamRowsFromCSVParseData() throws IOException {
-
+        Predicate<String[]> isEqualsTo3 = (x) -> x.length == 3;
         Stream<String> rows = Files.lines(Paths.get("src/test/resources/data.txt"));
         List<String> result = rows.map(x -> x.split(","))
-                .filter(x -> x.length == 3)
+                .filter(isEqualsTo3)
                 .map(x -> String.format("%s %s %s", x[0], x[1], x[2]))
                 .toList();
         rows.close();
@@ -140,12 +161,14 @@ public class StreamsTest {
     // Stream rows from CSV file store fields in HashMap
     @Test
     void testStreamRowCSVFileToHashMap() throws IOException {
+        Predicate<String[]> isEqualsTo3 = (x) -> x.length == 3;
+        Predicate<String[]> isGatherThan15 = (x) -> Integer.parseInt(x[1]) > 15;
         Stream<String> rows = Files.lines(Paths.get("src/test/resources/data.txt"));
         Map<String, Integer> map = new HashMap<>();
         map = rows
                 .map(x -> x.split(","))
-                .filter(x -> x.length == 3)
-                .filter(x -> Integer.parseInt(x[1]) > 15)
+                .filter(isEqualsTo3)
+                .filter(isGatherThan15)
                 .collect(Collectors.toMap(
                         key -> key[0],
                         value -> Integer.parseInt(value[1])

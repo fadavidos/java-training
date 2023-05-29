@@ -3,7 +3,6 @@ package fadavidos;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -229,5 +228,39 @@ public class StreamsTest {
                 .collect(Collectors.partitioningBy(numberIsEven));
         assertEquals(3 , result.get(true).size());
         assertEquals(4 , result.get(false).size());
+    }
+
+    record Employee(String name, Integer age, String jobTitle, Float salary){}
+
+    @Test
+    void testCombiningTwoResultList(){
+        Employee[] employeesArr = {
+                new Employee("John", 34, "developer", 80000f),
+                new Employee("Hannah", 24, "developer", 95000f),
+                new Employee("Bart", 50, "sales executive", 100000f),
+                new Employee("Sophie", 49, "construction worker", 40000f),
+                new Employee("Darren", 38, "writer", 50000f),
+                new Employee("Nancy", 29, "developer", 75000f),
+        };
+        List<Employee> employees = new ArrayList<>(Arrays.asList(employeesArr));
+
+        Predicate<Employee> isDeveloper = (emp) -> emp.jobTitle == "developer";
+        Function<Employee, Float> getSalary = (emp) -> emp.salary;
+        BinaryOperator<Float> sumSalaries = Float::sum;
+
+
+        Float totalDevelopersSalary = employees
+                .stream()
+                .filter(isDeveloper)
+                .map(getSalary)
+                .reduce(0F, sumSalaries);
+
+        Long numberOfDevelopers = employees
+                .stream()
+                .filter(isDeveloper)
+                .count();
+
+        Float averageDeveloperSalaries =  totalDevelopersSalary / numberOfDevelopers;
+        assertEquals(83333.336f, averageDeveloperSalaries);
     }
 }

@@ -66,4 +66,42 @@ public class FunctionalProgrammingTest {
         NoArguments<String> sayHello = () -> "hello";
         assertEquals("hello", sayHello.apply());
     }
+
+    public class MyMath2 {
+        public static Integer add(Integer a, Integer b) {
+            return a + b;
+        }
+
+        public static Integer subtract(Integer a, Integer b) {
+            return a - b;
+        }
+
+        public static Integer combine(BiFunction<Integer, Integer, Integer> combineFunc) {
+            return combineFunc.apply(2, 3);
+        }
+    }
+
+    @Test
+    void passingFunctionsAsArguments() {
+        assertEquals(5, MyMath2.combine(MyMath2::add));
+        assertEquals(-1, MyMath2.combine(MyMath2::subtract));
+        assertEquals(10, MyMath2.combine((x, y ) -> x * 2 + y * 2));
+    }
+
+    public class Multiplier{
+        public static Function<Integer, Integer> multiplier(Integer x) {
+            return (Integer y) -> y * x;
+        }
+    }
+
+    @Test
+    void returningFunctions(){
+        Function<Integer, Integer> times2 = Multiplier.multiplier(2);
+        Function<Integer, Integer> times3 = Multiplier.multiplier(3);
+        Function<Integer, Integer> times4 = Multiplier.multiplier(4);
+
+        assertEquals(6, times2.apply(3));
+        assertEquals(9, times3.apply(3));
+        assertEquals(12, times4.apply(3));
+    }
 }

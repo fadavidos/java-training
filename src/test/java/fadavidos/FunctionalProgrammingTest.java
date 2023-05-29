@@ -104,4 +104,32 @@ public class FunctionalProgrammingTest {
         assertEquals(9, times3.apply(3));
         assertEquals(12, times4.apply(3));
     }
+
+    @Test
+    void closure(){
+        NoArguments<NoArguments<String>> printer = () ->{
+            String name = "fadavidos";
+            return () -> String.format("Hello %s", name);
+        };
+        NoArguments<String> greeter = printer.apply();
+        assertEquals("Hello fadavidos", greeter.apply());
+        // greeter function has access to name variable inside the printer function. It is closure
+    }
+
+    @Test
+    void higherOrderFunctions(){
+        BiFunction<Float, Float, Float> divide = (x, y) -> x / y;
+
+        Function<BiFunction<Float, Float, Float>, BiFunction<Float, Float, Float>> secondArgIsntZeroCheck =
+                (func) -> (x, y) -> {
+                    if(y == 0f) {
+                        return 0f;
+                    }
+                    return func.apply(x, y);
+                };
+
+        BiFunction<Float, Float, Float> divideSafe = secondArgIsntZeroCheck.apply(divide);
+        assertEquals(0, divideSafe.apply(5f, 0f));
+        assertEquals(2, divideSafe.apply(10f, 5f));
+    }
 }

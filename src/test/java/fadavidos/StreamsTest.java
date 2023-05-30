@@ -263,4 +263,55 @@ public class StreamsTest {
         Float averageDeveloperSalaries =  totalDevelopersSalary / numberOfDevelopers;
         assertEquals(83333.336f, averageDeveloperSalaries);
     }
+
+    @Test
+    void testParallelStreamsFilter(){
+        String[] wordsArray = {"hello", "functional", "world", "is", "cool"};
+        ArrayList<String> words = new ArrayList<>(Arrays.asList(wordsArray));
+
+        Predicate<String> isLongerThan5 = (word) -> {
+            System.out.println(String.format("Filtering word: %s", word));
+            // The list of words will be printed non-sequentially
+            return word.length() > 2;
+        };
+
+        Function<String, String> toUpperCase = (word) -> {
+            System.out.println(String.format("toUpperCase word: %s", word));
+            // The list of words will be printed non-sequentially
+            return word.toUpperCase();
+        };
+
+        Function<String, String> addExclamationPoint = (word) -> {
+            System.out.println(String.format("adding ! word: %s", word));
+            // The list of words will be printed non-sequentially
+            return String.format("%s!", word);
+        };
+
+        // IMPORTANT: At the end the original order will be preserved.
+        List<String> filteredWords = words
+                .parallelStream()
+                .filter(isLongerThan5)
+                .map(toUpperCase)
+                .map(addExclamationPoint)
+                .toList();
+
+        assertEquals(4, filteredWords.size());
+
+        /*
+        For example, it could generate something like this:
+            Filtering word: hello
+            toUpperCase word: hello
+            adding ! word: HELLO
+            Filtering word: functional
+            Filtering word: cool
+            Filtering word: is
+            Filtering word: world
+            toUpperCase word: cool
+            toUpperCase word: functional
+            adding ! word: COOL
+            toUpperCase word: world
+            adding ! word: FUNCTIONAL
+            adding ! word: WORLD
+         */
+    }
 }

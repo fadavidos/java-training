@@ -1,6 +1,9 @@
 package fadavidos;
 import org.junit.jupiter.api.Test;
+import fadavidos.model.Employee;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.BiFunction;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -132,4 +135,53 @@ public class FPTest {
         assertEquals(0, divideSafe.apply(5f, 0f));
         assertEquals(2, divideSafe.apply(10f, 5f));
     }
+
+    @Test
+    void testPartialApplication(){
+        ThreeArguments<Integer, Integer, Integer, Integer> add =
+                (x, y, z) -> x + y + z;
+
+        Function<Integer, BiFunction<Integer, Integer, Integer>> addPartial =
+                (x) -> (y, z) -> add.apply(x, y, z);
+
+        BiFunction<Integer, Integer, Integer> add5 = addPartial.apply(5);
+
+        assertEquals(18, add5.apply(6, 7));
+    }
+
+    @Test
+    void testCompositionTwoFunctions(){
+        Function<Integer, Integer> timesTwo = x -> x * 2;
+        Function<Integer, Integer> minusOne = x -> x - 1;
+
+        Function<Integer, Integer> timesTwoMinusOne = timesTwo.andThen(minusOne);
+        Function<Integer, Integer> timesTwoMinusOneV2 = minusOne.compose(timesTwo);
+
+        assertEquals(19, timesTwoMinusOne.apply(10));
+        assertEquals(19, timesTwoMinusOneV2.apply(10));
+    }
+
+    Employee[] employeesArr = {
+            new Employee("John", 34, "developer", 80000f),
+            new Employee("Hannah", 24, "developer", 95000f),
+            new Employee("Bart", 50, "sales executive", 100000f),
+            new Employee("Sophie", 49, "construction worker", 45600f),
+            new Employee("Darren", 38, "writer", 50000f),
+            new Employee("Nancy", 29, "developer", 75000f),
+    };
+
+    @Test
+    void testCompositionThreeFunctions(){
+        ArrayList<Employee> employees = new ArrayList<>(Arrays.asList(employeesArr));
+
+        Function<Employee, String> getName = emp -> emp.name();
+        Function<String, String> reverse = str -> new StringBuilder(str).reverse().toString();
+        Function<String, String> toUpperCase = String::toUpperCase;
+
+        Function<Employee, String> getNameReversedUpperCase = getName.andThen(reverse).andThen(toUpperCase);
+
+        assertEquals("YCNAN", getNameReversedUpperCase.apply(employees.get(5)));
+    }
+
+
 }

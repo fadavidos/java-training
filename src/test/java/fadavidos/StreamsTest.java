@@ -1,5 +1,6 @@
 package fadavidos;
 
+import fadavidos.model.Employee;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -230,22 +231,23 @@ public class StreamsTest {
         assertEquals(4 , result.get(false).size());
     }
 
-    record Employee(String name, Integer age, String jobTitle, Float salary){}
+
+
+    Employee[] employeesArr = {
+            new Employee("John", 34, "developer", 80000f),
+            new Employee("Hannah", 24, "developer", 95000f),
+            new Employee("Bart", 50, "sales executive", 100000f),
+            new Employee("Sophie", 49, "construction worker", 45600f),
+            new Employee("Darren", 38, "writer", 50000f),
+            new Employee("Nancy", 29, "developer", 75000f),
+    };
 
     @Test
     void testCombiningTwoResultList(){
-        Employee[] employeesArr = {
-                new Employee("John", 34, "developer", 80000f),
-                new Employee("Hannah", 24, "developer", 95000f),
-                new Employee("Bart", 50, "sales executive", 100000f),
-                new Employee("Sophie", 49, "construction worker", 40000f),
-                new Employee("Darren", 38, "writer", 50000f),
-                new Employee("Nancy", 29, "developer", 75000f),
-        };
         List<Employee> employees = new ArrayList<>(Arrays.asList(employeesArr));
 
-        Predicate<Employee> isDeveloper = (emp) -> emp.jobTitle == "developer";
-        Function<Employee, Float> getSalary = (emp) -> emp.salary;
+        Predicate<Employee> isDeveloper = (emp) -> emp.jobTitle() == "developer";
+        Function<Employee, Float> getSalary = (emp) -> emp.salary();
         BinaryOperator<Float> sumSalaries = Float::sum;
 
 
@@ -262,6 +264,36 @@ public class StreamsTest {
 
         Float averageDeveloperSalaries =  totalDevelopersSalary / numberOfDevelopers;
         assertEquals(83333.336f, averageDeveloperSalaries);
+    }
+
+    @Test
+    void testCombiningMultiplesResults(){
+        List<Employee> employees = new ArrayList<>(Arrays.asList(employeesArr));
+
+        Function<Employee, Float> getSalary = (emp) -> emp.salary();
+        BinaryOperator<Float> sumSalaries = Float::sum;
+
+        Map<String, Float> groupedByJobTitle = employees
+                .parallelStream()
+                .collect(Collectors.groupingBy((emp) -> emp.jobTitle()))
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        (grouped) -> {
+                            Float sumSalary =  grouped
+                                    .getValue()
+                                    .parallelStream()
+                                    .map(getSalary)
+                                    .reduce(0F, sumSalaries);
+                            Integer total = grouped.getValue().size();
+                            return sumSalary / total;
+                }));
+
+        assertEquals(45600.0F, groupedByJobTitle.get("construction worker"));
+        assertEquals(83333.336F, groupedByJobTitle.get("developer"));
+        assertEquals(50000.0F, groupedByJobTitle.get("writer"));
+        assertEquals(100000.0F, groupedByJobTitle.get("sales executive"));
     }
 
     @Test

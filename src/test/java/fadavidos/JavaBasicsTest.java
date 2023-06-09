@@ -3,7 +3,7 @@ package fadavidos;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BasicsTest {
+public class JavaBasicsTest {
 
     @Test
     public void staticVariableAndMethod(){

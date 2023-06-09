@@ -100,7 +100,59 @@ public class BasicsTest {
 
     @Test
     public void finalMethod(){
-        
+        /*
+         * Use final for methods in a class to prevent subclasses
+         * from overriding the method.
+        */
+        class Father{
+            public final String sayHello(){
+                return "Hello";
+            }
+
+            public String sayGoodbye(){
+                return "See you";
+            }
+        }
+
+        class Son extends Father {
+            /*
+            'sayHello()' cannot override 'sayHello()' in 'Father';
+             overridden method is final
+            @Override
+            public String sayHello() {
+                return "Hi";
+            }
+             */
+            @Override
+            public String sayGoodbye() {
+                return "Bye";
+            }
+        }
+
+        var son = new Son();
+        assertEquals("Hello", son.sayHello());
+        assertEquals("Bye", son.sayGoodbye());
+    }
+
+    public void finalClasses(){
+        /*
+        Use final for classes to prevent other classes from
+        inheriting from them. This is useful when you want to
+        ensure that a class cannot be subclassed or overridden.
+         */
+        final class Father {
+            public String sayHello(){
+                return "Hello";
+            }
+        }
+
+        /*
+        Cannot inherit from final 'null'
+        class Son extends Father {
+        }
+         */
+        var father = new Father();
+        assertEquals("Hello", father.sayHello());
     }
 
 }

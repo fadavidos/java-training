@@ -20,6 +20,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class StreamsTest {
 
+    /*
+    Stream operations are divided into intermediate and terminal operations, and are combined to form stream pipelines.
+    A stream pipeline consists of a source (such as a Collection, an array, a generator function, or an I/O channel);
+    followed by zero or more intermediate operations such as Stream.filter or Stream.map; and a terminal operation
+    such as Stream.forEach or Stream.reduce.
+
+    Intermediate operations return a new stream. They are always lazy;
+     */
+
     @Test
     void mapFunction(){
         Integer[] intArray = {1, 2, 3, 4, 5};
@@ -33,15 +42,30 @@ public class StreamsTest {
         assertEquals(6, doubled.get(2));
     }
 
+
+    @Test
+    void streamOperationsAreLazy(){
+        List<String> l = new ArrayList(Arrays.asList("one", "two"));
+        Stream<String> sl = l.stream();
+        l.add("three");
+        String finalResult = sl.collect(Collectors.joining(" "));
+        assertEquals("one two three", finalResult);
+    }
+
     // Integer Stream
     @Test
     void testCreateAIntStream() {
+        /*
+         boxed() method is used in the context of IntStream to convert each
+         primitive int element of the stream into its corresponding boxed
+         Integer object.
+         The resulting stream will have elements of type Integer instead of int.
+         */
         List<Integer> numbers = IntStream.range(1, 10)
                 .boxed()
                 .toList();
 
         assertEquals(9, numbers.size());
-
     }
 
     // Integer Stream with skip

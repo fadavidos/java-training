@@ -1,17 +1,29 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### IntelliJ IDEA ###
+# IDE (IntelliJ IDEA) files
 .idea/
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
 *.iml
+*.iws
 *.ipr
+
+# Gradle files
 .gradle/
-/gradle/
-/build
+build/
+buildSrc/
+
+# JUnit test reports
+build/test-results/
+
+# Compiled class files
+out/
+
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+
+# Gradle Wrapper
+gradle-wrapper.jar
+gradle-wrapper.properties
+
+# Maven
+target/
